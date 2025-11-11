@@ -1,0 +1,67 @@
+version: '3.8'
+
+services:
+  postgres:
+    image: postgres:15-alpine
+    container_name: llm_aggregator_db
+    environment:
+      POSTGRES_USER: llm_user
+      POSTGRES_PASSWORD: llm_password
+      POSTGRES_DB: llm_aggregator
+    ports:
+      - "5433:5432"  # Using 5433 to avoid conflict with existing postgres
+    volumes:
+      - postgres_data:/var/lib/postgresql/data
+    healthcheck:
+      test: ["CMD-SHELL", "pg_isready -U llm_user"]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+
+  backend:
+    build:
+      context: ./backend
+      dockerfile: Dockerfile
+    container_name: llm_aggregator_backend
+    environment:
+      DATABASE_URL: postgresql://llm_user:llm_password@postgres:5432/llm_aggregator
+      ENCRYPTION_KEY: ${ENCRYPTION_KEY:-change-me-in-production-32-bytes-key!!}
+      JWT_SECRET_KEY: ${JWT_SECRET_KEY:-change-me-in-production-secret-key}
+      JWT_ALGORITHM: HS256
+      JWT_EXPIRATION_HOURS: 24
+      CORS_ORIGINS: http://localhost:5173,http://localhost:3000
+      # Email/SMTP Configuration (optional - if not set, tokens will be logged to console)
+      SMTP_HOST: ${SMTP_HOST:-}
+      SMTP_PORT: ${SMTP_PORT:-587}
+      SMTP_USER: ${SMTP_USER:-}
+      SMTP_PASSWORD: ${SMTP_PASSWORD:-}
+      SMTP_FROM_EMAIL: ${SMTP_FROM_EMAIL:-}
+      FRONTEND_URL: ${FRONTEND_URL:-http://localhost:5173}
+    ports:
+      - "8000:8000"
+    volumes:
+      - ./backend:/app
+    depends_on:
+      postgres:
+        condition: service_healthy
+    command: uvicorn app.main:app --host 0.0.0.0 --port 8000 --reload
+
+  frontend:
+    build:
+      context: ./frontend
+      dockerfile: Dockerfile
+    container_name: llm_aggregator_frontend
+    environment:
+      VITE_API_URL: http://localhost:8000
+    ports:
+      - "5173:5173"
+    volumes:
+      - ./frontend:/app
+      - /app/node_modules
+    depends_on:
+      - backend
+    command: npm run dev -- --host 0.0.0.0
+
+volumes:
+  postgres_data:
+
