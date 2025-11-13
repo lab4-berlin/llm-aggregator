@@ -5,23 +5,24 @@ import os
 
 def get_database_url() -> str:
     """Get database URL, supporting both Cloud SQL and standard connections."""
-    # Check if we're using Cloud SQL (via Unix socket)
+    # If DATABASE_URL is explicitly set (from secrets), use it
+    database_url = os.getenv("DATABASE_URL", "")
+    if database_url:
+        return database_url
+    
+    # Otherwise, build from Cloud SQL connection name if available
     cloud_sql_connection = os.getenv("CLOUD_SQL_CONNECTION_NAME")
     if cloud_sql_connection:
         # Cloud SQL connection via Unix socket
-        # Password comes from DB_PASSWORD secret or DATABASE_URL
         db_user = os.getenv("DB_USER", "llm_user")
         db_pass = os.getenv("DB_PASSWORD", "")
         db_name = os.getenv("DB_NAME", "llm_aggregator")
         unix_socket = f"/cloudsql/{cloud_sql_connection}"
         if db_pass:
             return f"postgresql://{db_user}:{db_pass}@/{db_name}?host={unix_socket}"
-        else:
-            # Fallback to DATABASE_URL if DB_PASSWORD not set
-            return os.getenv("DATABASE_URL", "")
-    else:
-        # Standard connection string (local or connection string from secrets)
-        return os.getenv("DATABASE_URL", "")
+    
+    # Fallback to empty string (will cause error, but that's expected)
+    return ""
 
 
 class Settings(BaseSettings):
@@ -58,7 +59,7 @@ class Settings(BaseSettings):
 
 settings = Settings()
 
-# Override DATABASE_URL if using Cloud SQL
-if not settings.DATABASE_URL or os.getenv("CLOUD_SQL_CONNECTION_NAME"):
+# Override DATABASE_URL if not set in settings
+if not settings.DATABASE_URL:
     settings.DATABASE_URL = get_database_url()
 
