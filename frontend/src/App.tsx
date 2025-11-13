@@ -96,7 +96,7 @@ const Dashboard = () => {
           <div className="flex justify-between h-16">
             <div className="flex items-center">
               <h1 className="text-xl font-bold text-gray-900">LLM Aggregator</h1>
-            </div>
+      </div>
             <div className="flex items-center space-x-4">
               {user && (
                 <div className="flex items-center space-x-3">
@@ -109,7 +109,7 @@ const Dashboard = () => {
                     className="text-sm text-indigo-600 hover:text-indigo-800"
                   >
                     Logout
-                  </button>
+        </button>
                 </div>
               )}
             </div>
@@ -127,7 +127,7 @@ const Dashboard = () => {
           )}
         </div>
       </main>
-    </div>
+      </div>
   );
 };
 

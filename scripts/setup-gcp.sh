@@ -212,6 +212,11 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
     --role="roles/serviceusage.serviceUsageConsumer" \
     --condition=None
 
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$COMPUTE_SA" \
+    --role="roles/artifactregistry.writer" \
+    --condition=None
+
 echo -e "${GREEN}✓ Compute Engine service account permissions granted${NC}\n"
 
 # Step 9: Create and download service account key
