@@ -197,6 +197,23 @@ gcloud projects add-iam-policy-binding $PROJECT_ID \
 
 echo -e "${GREEN}✓ Permissions granted${NC}\n"
 
+# Grant permissions to default Compute Engine service account for Cloud Build
+echo -e "${GREEN}Granting permissions to Compute Engine service account for Cloud Build...${NC}"
+PROJECT_NUMBER=$(gcloud projects describe $PROJECT_ID --format='value(projectNumber)')
+COMPUTE_SA="${PROJECT_NUMBER}-compute@developer.gserviceaccount.com"
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$COMPUTE_SA" \
+    --role="roles/storage.admin" \
+    --condition=None
+
+gcloud projects add-iam-policy-binding $PROJECT_ID \
+    --member="serviceAccount:$COMPUTE_SA" \
+    --role="roles/serviceusage.serviceUsageConsumer" \
+    --condition=None
+
+echo -e "${GREEN}✓ Compute Engine service account permissions granted${NC}\n"
+
 # Step 9: Create and download service account key
 echo -e "${GREEN}Step 8: Creating service account key...${NC}"
 KEY_FILE="gcp-service-account-key.json"
