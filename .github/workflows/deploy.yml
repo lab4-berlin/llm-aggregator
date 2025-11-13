@@ -66,8 +66,8 @@ jobs:
             --platform managed \
             --region $REGION \
             --allow-unauthenticated \
-            --set-secrets=DATABASE_URL=db-connection-string:latest,ENCRYPTION_KEY=encryption-key:latest,JWT_SECRET_KEY=jwt-secret:latest,DB_PASSWORD=db-password:latest \
-            --set-env-vars="JWT_ALGORITHM=HS256,JWT_EXPIRATION_HOURS=24,CLOUD_SQL_CONNECTION_NAME=$PROJECT_ID:$REGION:$DB_INSTANCE" \
+            --set-secrets=DATABASE_URL=db-connection-string:latest,ENCRYPTION_KEY=encryption-key:latest,JWT_SECRET_KEY=jwt-secret:latest,DB_PASSWORD=db-password:latest,SMTP_PASSWORD=smtp-password:latest \
+            --set-env-vars="JWT_ALGORITHM=HS256,JWT_EXPIRATION_HOURS=24,CLOUD_SQL_CONNECTION_NAME=$PROJECT_ID:$REGION:$DB_INSTANCE,SMTP_HOST=smtp.gmail.com,SMTP_PORT=587,SMTP_USER=ilya@lab4.berlin,SMTP_FROM_EMAIL=ilya@lab4.berlin" \
             --add-cloudsql-instances=$PROJECT_ID:$REGION:$DB_INSTANCE \
             --memory=512Mi \
             --cpu=1 \
