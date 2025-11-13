@@ -26,6 +26,11 @@ dist-ssr/
 .env
 .env.local
 .env.*.local
+.env.production
+
+# GCP credentials
+gcp-service-account-key.json
+*.json.key
 
 # IDE
 .vscode/

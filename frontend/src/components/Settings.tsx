@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { Link } from 'react-router-dom';
 import { apiService } from '../services/api';
 
 interface APIKeyStatus {
@@ -30,9 +31,12 @@ export const Settings = () => {
     try {
       setLoading(true);
       const data = await apiService.getAPIKeys();
+      console.log('Loaded API keys:', data);
       setKeys(data);
     } catch (error: any) {
       console.error('Failed to load API keys:', error);
+      // Set empty array on error so providers still show
+      setKeys([]);
     } finally {
       setLoading(false);
     }
@@ -98,7 +102,7 @@ export const Settings = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center">
+      <div className="min-h-screen flex items-center justify-center bg-gray-100">
         <div className="text-gray-500">Loading settings...</div>
       </div>
     );
@@ -129,11 +133,14 @@ export const Settings = () => {
           </p>
 
           <div className="space-y-6">
-            {PROVIDERS.map((provider) => {
-              const keyStatus = keys.find(k => k.provider === provider.id);
-              const hasKey = keyStatus?.has_key || false;
-              const isEditing = editing[provider.id] !== undefined;
-              const providerInfo = getProviderInfo(provider.id);
+            {PROVIDERS.length === 0 ? (
+              <div className="text-center text-gray-500 py-8">No providers available</div>
+            ) : (
+              PROVIDERS.map((provider) => {
+                const keyStatus = keys.find(k => k.provider === provider.id);
+                const hasKey = keyStatus?.has_key || false;
+                const isEditing = editing[provider.id] !== undefined;
+                const providerInfo = getProviderInfo(provider.id);
 
               return (
                 <div key={provider.id} className="border border-gray-200 rounded-lg p-4">
@@ -220,7 +227,8 @@ export const Settings = () => {
                   </div>
                 </div>
               );
-            })}
+            })
+            )}
           </div>
         </div>
       </main>
