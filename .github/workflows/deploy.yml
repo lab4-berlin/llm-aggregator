@@ -38,8 +38,20 @@ jobs:
           BUILD_ID2=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$BACKEND_SERVICE:latest --async --format="value(id)")
           echo "Build IDs: $BUILD_ID1, $BUILD_ID2"
           # Wait for builds to complete
-          gcloud builds wait $BUILD_ID1
-          gcloud builds wait $BUILD_ID2
+          for build_id in $BUILD_ID1 $BUILD_ID2; do
+            echo "Waiting for build $build_id to complete..."
+            while true; do
+              STATUS=$(gcloud builds describe $build_id --format="value(status)")
+              if [ "$STATUS" = "SUCCESS" ]; then
+                echo "Build $build_id completed successfully"
+                break
+              elif [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "CANCELLED" ]; then
+                echo "Build $build_id failed with status: $STATUS"
+                exit 1
+              fi
+              sleep 5
+            done
+          done
       
       - name: Get backend URL
         id: backend-url
@@ -110,8 +122,20 @@ jobs:
           BUILD_ID2=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:latest --async --format="value(id)")
           echo "Build IDs: $BUILD_ID1, $BUILD_ID2"
           # Wait for builds to complete
-          gcloud builds wait $BUILD_ID1
-          gcloud builds wait $BUILD_ID2
+          for build_id in $BUILD_ID1 $BUILD_ID2; do
+            echo "Waiting for build $build_id to complete..."
+            while true; do
+              STATUS=$(gcloud builds describe $build_id --format="value(status)")
+              if [ "$STATUS" = "SUCCESS" ]; then
+                echo "Build $build_id completed successfully"
+                break
+              elif [ "$STATUS" = "FAILURE" ] || [ "$STATUS" = "CANCELLED" ]; then
+                echo "Build $build_id failed with status: $STATUS"
+                exit 1
+              fi
+              sleep 5
+            done
+          done
       
       - name: Deploy frontend to Cloud Run
         run: |
