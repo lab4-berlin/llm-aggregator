@@ -33,8 +33,13 @@ jobs:
       - name: Build and push backend image
         run: |
           cd backend
-          gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$BACKEND_SERVICE:$GITHUB_SHA
-          gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$BACKEND_SERVICE:latest
+          # Submit builds asynchronously to avoid log streaming issues
+          BUILD_ID1=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$BACKEND_SERVICE:$GITHUB_SHA --async --format="value(id)")
+          BUILD_ID2=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$BACKEND_SERVICE:latest --async --format="value(id)")
+          echo "Build IDs: $BUILD_ID1, $BUILD_ID2"
+          # Wait for builds to complete
+          gcloud builds wait $BUILD_ID1
+          gcloud builds wait $BUILD_ID2
       
       - name: Get backend URL
         id: backend-url
@@ -100,8 +105,13 @@ jobs:
       - name: Build and push frontend image
         run: |
           cd frontend
-          gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:$GITHUB_SHA
-          gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:latest
+          # Submit builds asynchronously to avoid log streaming issues
+          BUILD_ID1=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:$GITHUB_SHA --async --format="value(id)")
+          BUILD_ID2=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:latest --async --format="value(id)")
+          echo "Build IDs: $BUILD_ID1, $BUILD_ID2"
+          # Wait for builds to complete
+          gcloud builds wait $BUILD_ID1
+          gcloud builds wait $BUILD_ID2
       
       - name: Deploy frontend to Cloud Run
         run: |
