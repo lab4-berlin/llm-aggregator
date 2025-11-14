@@ -12,6 +12,7 @@ logging.basicConfig(
 )
 
 # Create database tables
+# This will fail fast if DB connection doesn't work (as intended)
 Base.metadata.create_all(bind=engine)
 
 app = FastAPI(title="LLM Aggregator API", version="1.0.0")

@@ -33,7 +33,13 @@ if "/cloudsql/" in settings.DATABASE_URL:
             except Exception as e:
                 logger.warning(f"Could not list socket directory: {e}")
 
-engine = create_engine(settings.DATABASE_URL)
+# Create engine lazily - don't connect until first use
+# This prevents connection attempts during module import
+engine = create_engine(
+    settings.DATABASE_URL,
+    pool_pre_ping=True,  # Test connections before using
+    connect_args={"connect_timeout": 10} if settings.DATABASE_URL else {}
+)
 SessionLocal = sessionmaker(autocommit=False, autoflush=False, bind=engine)
 
 Base = declarative_base()
