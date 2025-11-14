@@ -133,12 +133,9 @@ class ApiService {
             console.log('Processing SSE message:', message);
             const lines = message.split('\n');
             let dataStr = '';
-            let eventType = 'message';
 
             for (const line of lines) {
-              if (line.startsWith('event: ')) {
-                eventType = line.slice(7).trim();
-              } else if (line.startsWith('data: ')) {
+              if (line.startsWith('data: ')) {
                 dataStr = line.slice(6).trim();
               }
             }
