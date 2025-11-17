@@ -29,7 +29,8 @@ export const Register = () => {
     setLoading(true);
 
     try {
-      const response = await fetch(`${import.meta.env.VITE_API_URL || 'http://localhost:8000'}/api/auth/register`, {
+      const apiUrl = import.meta.env.VITE_API_URL || 'http://localhost:8000';
+      const response = await fetch(`${apiUrl}/api/auth/register`, {
         method: 'POST',
         headers: {
           'Content-Type': 'application/json',
@@ -38,8 +39,15 @@ export const Register = () => {
       });
 
       if (!response.ok) {
-        const data = await response.json();
-        throw new Error(data.detail || 'Registration failed');
+        let errorMessage = 'Registration failed';
+        try {
+          const data = await response.json();
+          errorMessage = data.detail || errorMessage;
+        } catch {
+          // If response is not JSON, use status text
+          errorMessage = `Server error: ${response.status} ${response.statusText}`;
+        }
+        throw new Error(errorMessage);
       }
 
       const data = await response.json();
@@ -47,7 +55,13 @@ export const Register = () => {
       alert(data.message || 'Registration successful! Please check your email to verify your account.');
       navigate('/login');
     } catch (err: any) {
-      setError(err.message || 'Registration failed');
+      // Better error messages for network failures
+      if (err.message === 'Failed to fetch' || err.name === 'TypeError') {
+        setError('Unable to connect to server. Please check your connection and try again.');
+      } else {
+        setError(err.message || 'Registration failed. Please try again.');
+      }
+      console.error('Registration error:', err);
     } finally {
       setLoading(false);
     }

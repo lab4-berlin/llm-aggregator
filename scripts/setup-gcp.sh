@@ -276,5 +276,9 @@ echo "  Backend: https://llm-aggregator-backend-xxx.run.app"
 echo "  Frontend: https://llm-aggregator-frontend-xxx.run.app"
 echo ""
 echo -e "${YELLOW}Note: Update CORS_ORIGINS in backend after first deployment!${NC}"
+echo ""
+echo -e "${YELLOW}Note: After deployment, you may need to grant public access manually.${NC}"
+echo -e "${YELLOW}See QUICK_START_DEPLOY.md for instructions.${NC}"
+echo ""
 
 

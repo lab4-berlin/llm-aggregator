@@ -97,7 +97,37 @@ gcloud run services update llm-aggregator-backend \
   --update-env-vars="CORS_ORIGINS=$FRONTEND_URL"
 ```
 
-### 6. Test Your Deployment
+### 6. Grant Public Access (Required)
+
+By default, Cloud Run services require authentication. To make your app publicly accessible:
+
+```bash
+# Set your project ID
+export GCP_PROJECT_ID=your-project-id
+export REGION=us-central1
+
+# Grant public access to backend
+gcloud run services add-iam-policy-binding llm-aggregator-backend \
+  --region=$REGION \
+  --member="allUsers" \
+  --role="roles/run.invoker" \
+  --project=$GCP_PROJECT_ID
+
+# Grant public access to frontend
+gcloud run services add-iam-policy-binding llm-aggregator-frontend \
+  --region=$REGION \
+  --member="allUsers" \
+  --role="roles/run.invoker" \
+  --project=$GCP_PROJECT_ID
+```
+
+**If you get an organization policy error:**
+
+Your GCP organization may have a policy that blocks public Cloud Run access. Contact your GCP organization admin to:
+- Allow public Cloud Run access for your project, or
+- Add an exception for your project ID
+
+### 7. Test Your Deployment
 
 1. Open your frontend URL in a browser
 2. Register a new account
@@ -124,6 +154,14 @@ gcloud sql connect llm-aggregator-db --user=llm_user
 1. Check browser console
 2. Verify backend URL is correct
 3. Check CORS is configured
+
+### Getting "Forbidden" or "403" Error?
+
+This means public access hasn't been granted. Follow **Step 6** above to grant public access.
+
+If you get an organization policy error, your GCP organization is blocking public Cloud Run access. Contact your organization admin to:
+- Allow public Cloud Run access for your project, or
+- Add an exception for your project ID
 
 ## Next Steps
 
