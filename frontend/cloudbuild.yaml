@@ -1,0 +1,13 @@
+steps:
+  - name: 'gcr.io/cloud-builders/docker'
+    args:
+      - 'build'
+      - '--build-arg'
+      - 'VITE_API_URL=https://llm-aggregator-backend-ipbhe3xnrq-uc.a.run.app'
+      - '--tag'
+      - 'us-central1-docker.pkg.dev/llm-aggregator-478120/llm-aggregator/llm-aggregator-frontend:latest'
+      - '-f'
+      - 'Dockerfile.prod'
+      - '.'
+images:
+  - 'us-central1-docker.pkg.dev/llm-aggregator-478120/llm-aggregator/llm-aggregator-frontend:latest'
