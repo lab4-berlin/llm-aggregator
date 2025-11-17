@@ -118,8 +118,9 @@ jobs:
         run: |
           cd frontend
           # Submit builds asynchronously to avoid log streaming issues
-          BUILD_ID1=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:$GITHUB_SHA --async --format="value(id)")
-          BUILD_ID2=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:latest --async --format="value(id)")
+          # Use Dockerfile.prod for production build with nginx
+          BUILD_ID1=$(gcloud builds submit -f Dockerfile.prod --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:$GITHUB_SHA --async --format="value(id)")
+          BUILD_ID2=$(gcloud builds submit -f Dockerfile.prod --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:latest --async --format="value(id)")
           echo "Build IDs: $BUILD_ID1, $BUILD_ID2"
           # Wait for builds to complete
           for build_id in $BUILD_ID1 $BUILD_ID2; do
