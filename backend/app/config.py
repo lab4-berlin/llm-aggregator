@@ -48,9 +48,16 @@ class Settings(BaseSettings):
     SMTP_FROM_EMAIL: str = ""
     FRONTEND_URL: str = "http://localhost:5173"
     
+    # Allowed email domains for registration
+    ALLOWED_EMAIL_DOMAINS: str = "bioagelabs.com"
+    
     @property
     def cors_origins_list(self) -> List[str]:
         return [origin.strip() for origin in self.CORS_ORIGINS.split(",")]
+    
+    @property
+    def allowed_email_domains_list(self) -> List[str]:
+        return [domain.strip().lower() for domain in self.ALLOWED_EMAIL_DOMAINS.split(",")]
     
     class Config:
         env_file = ".env"

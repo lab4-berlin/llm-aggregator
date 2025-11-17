@@ -49,6 +49,14 @@ async def register(
     db: Session = Depends(get_db),
 ):
     """Register a new user."""
+    # Validate email domain
+    email_domain = request.email.split("@")[1].lower() if "@" in request.email else ""
+    if email_domain not in settings.allowed_email_domains_list:
+        raise HTTPException(
+            status_code=status.HTTP_400_BAD_REQUEST,
+            detail=f"Registration is only allowed for emails from: {', '.join(settings.allowed_email_domains_list)}",
+        )
+    
     # Check if user already exists
     existing_user = db.query(User).filter(User.email == request.email).first()
     if existing_user:
