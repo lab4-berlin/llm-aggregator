@@ -117,10 +117,15 @@ jobs:
       - name: Build and push frontend image
         run: |
           cd frontend
+          # Temporarily rename Dockerfile.prod to Dockerfile for gcloud builds submit
+          mv Dockerfile Dockerfile.dev
+          mv Dockerfile.prod Dockerfile
           # Submit builds asynchronously to avoid log streaming issues
-          # Use Dockerfile.prod for production build with nginx
-          BUILD_ID1=$(gcloud builds submit --dockerfile=Dockerfile.prod --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:$GITHUB_SHA --async --format="value(id)")
-          BUILD_ID2=$(gcloud builds submit --dockerfile=Dockerfile.prod --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:latest --async --format="value(id)")
+          BUILD_ID1=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:$GITHUB_SHA --async --format="value(id)")
+          BUILD_ID2=$(gcloud builds submit --tag $REGION-docker.pkg.dev/$PROJECT_ID/llm-aggregator/$FRONTEND_SERVICE:latest --async --format="value(id)")
+          # Restore original filenames
+          mv Dockerfile Dockerfile.prod
+          mv Dockerfile.dev Dockerfile
           echo "Build IDs: $BUILD_ID1, $BUILD_ID2"
           # Wait for builds to complete
           for build_id in $BUILD_ID1 $BUILD_ID2; do

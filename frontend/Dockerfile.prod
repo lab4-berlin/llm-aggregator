@@ -30,7 +30,7 @@ EXPOSE 80
 # Install gettext for envsubst
 RUN apk add --no-cache gettext
 
-# Start nginx with PORT from environment variable
-CMD sh -c "envsubst < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
+# Start nginx with PORT from environment variable (default to 80 if not set)
+CMD sh -c "export PORT=\${PORT:-80} && envsubst '\$PORT' < /etc/nginx/conf.d/default.conf.template > /etc/nginx/conf.d/default.conf && nginx -g 'daemon off;'"
 
 
